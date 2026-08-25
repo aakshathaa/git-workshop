@@ -4,14 +4,28 @@ from bs4 import BeautifulSoup
 url = "https://blog.python.org/"
 
 response = requests.get(url)
-print("STATUS:", response.status_code)
+response.raise_for_status()
 
 soup = BeautifulSoup(response.text, "html.parser")
 
-print("TITLE:", soup.title.get_text(strip=True))
+articles = soup.find_all("article")
 
-print("ARTICLE COUNT:", len(soup.find_all("article")))
-print("H2 COUNT:", len(soup.find_all("h2")))
+print("Number of articles:", len(articles))
 
-for h2 in soup.find_all("h2"):
-    print("H2:", h2.get_text(" ", strip=True))
+for article in articles:
+    title = article.find("h3").get_text(strip=True)
+
+    author = article.find("span", class_="font-medium").get_text(strip=True)
+
+    date = article.find("time").get_text(strip=True)
+
+    link = article.find("a")["href"]
+
+    if link.startswith("/"):
+        link = "https://blog.python.org" + link
+
+    print("Title:", title)
+    print("Author:", author)
+    print("Date:", date)
+    print("URL:", link)
+    print("-" * 80)
